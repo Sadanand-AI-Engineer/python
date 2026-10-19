@@ -1,0 +1,749 @@
+# MASTER PROMPT — ENTERPRISE UNDERWRITING AI KNOWLEDGE ASSISTANT
+
+## YOUR ROLE
+
+You are a Principal AI Architect, Senior Python Engineer, Enterprise Agentic AI Developer, Underwriting Domain Analyst, Data Engineer, and Windows Desktop Application Developer.
+
+Build a complete, working **Enterprise Underwriting AI Knowledge & Development Assistant** on my company Windows laptop.
+
+This is not a demonstration project. I want a useful, persistent personal development companion for a real enterprise underwriting AI initiative.
+
+**IMPORTANT: Work autonomously. Do not repeatedly ask for my confirmation.** Make reasonable technical decisions, create the files, write the code, execute safe and permitted tests, fix errors, and continue until the maximum achievable functionality is working.
+
+Do not bypass company permissions, security restrictions, credential requirements, or approval controls. When a step is genuinely blocked, implement everything else and clearly report the blocker.
+
+---
+
+# 1. MY ACTUAL ENTERPRISE PROJECT
+
+I am working on an enterprise **Underwriting AI Assistant**.
+
+The ultimate production solution will involve multiple AI agents that collect information from different source systems, interpret underwriting business rules, analyze applicant information, evaluate available evidence, produce case summaries, and answer underwriter questions.
+
+The high-level future production workflow is:
+
+1. An application or underwriting case originates in Salesforce or another case management system.
+2. MuleSoft APIs retrieve applicant questions and responses, applicant demographics, claim history, provider information, medical records, and other authorized business data.
+3. Specialized agents retrieve and process relevant information from each source.
+4. Document-processing components extract text from medical reports, scanned PDFs, prescriptions, and related files.
+5. Underwriting rule retrieval identifies applicable guidelines, requirements, and decision criteria.
+6. An orchestration layer coordinates agents, reconciles evidence, identifies conflicts, and prepares a case-level analysis.
+7. A summarization component creates a structured underwriting case summary, including medical history, observations, potential risk factors, missing information, supporting evidence, and relevant rules.
+8. A dashboard presents case-level findings with traceable supporting sources.
+9. A conversational assistant answers case-specific underwriting questions by retrieving existing case evidence or invoking authorized agents and tools.
+10. Human underwriters remain responsible for reviewing findings and making decisions according to company policy.
+
+The solution should support underwriter-like reasoning by following documented business rules and analyzing evidence, but it must not invent requirements, make unsupported risk classifications, or independently authorize underwriting decisions.
+
+**I am building this desktop knowledge assistant to help me design, develop, understand, and troubleshoot that larger enterprise project.**
+
+Do not confuse this personal knowledge assistant with the eventual production multi-agent platform.
+
+---
+
+# 2. PURPOSE OF THIS DESKTOP ASSISTANT
+
+I need one central place where I can upload project reference materials, ask questions, verify technical or business information, and preserve all important project discussions.
+
+Examples of what I will provide:
+
+- Underwriting rulebooks and policy manuals
+- UW process and workflow documents
+- Business requirements and functional specifications
+- Excel data mappings and source-to-target mappings
+- PDF documents and scanned reports
+- Word documents
+- API documentation and API response examples
+- MuleSoft JSON or XML responses
+- Salesforce field definitions and workflows
+- Facets claims and provider data specifications
+- Medical terminology and UW definitions
+- AI architecture documents
+- Agent design specifications
+- Data contracts and integration documentation
+- Azure AI Foundry, ADI, GPT-5 gateway, and related configuration guidance
+- Source system integration descriptions
+- Code snippets, configuration examples, and technical notes
+- Meeting notes, architecture decisions, and follow-up actions
+
+Documents may include 50 or more files, with some PDFs exceeding 500 pages.
+
+The assistant must make these resources searchable across future sessions.
+
+---
+
+# 3. MY EXISTING ENVIRONMENT
+
+I have:
+
+- Windows company laptop
+- Visual Studio Code
+- GitHub Copilot Agent
+- ADI credentials: Tenant ID, Client ID, Client Secret, and Project ID
+- GPT-5 model access through an enterprise gateway
+
+Current limitations:
+
+- Python installation availability is unknown
+- No Azure AI Search access for this desktop project
+- No SQLite dependency desired
+- No Docker or Kubernetes required
+- No external hosting
+- No complex web interface
+- No unnecessary software installations
+- Gateway API request and authentication specifications must be discovered from approved documentation
+
+Check the available environment yourself.
+
+Do not assume ADI credentials directly authenticate to GPT-5. Determine whether ADI and the GPT-5 gateway are related using actual company-approved documentation or existing approved code.
+
+Use only dummy or company-approved non-sensitive data initially.
+
+---
+
+# 4. USER EXPERIENCE — MOST IMPORTANT
+
+I want a Windows desktop icon named:
+
+**UW AI Assistant**
+
+When I double-click the icon, the application should launch automatically.
+
+I do not want to manually open VS Code, run Python commands, or execute scripts every time.
+
+Create a minimal desktop application with:
+
+- Chat input
+- Answer display
+- Upload Files button
+- Paste API Response option
+- New Chat button
+- Chat History
+- Search Documents
+- Verify Information mode
+- Source References panel
+- Reindex Documents option
+- Model Connection Status
+
+Use Python Tkinter if it is already available and permitted.
+
+Otherwise, choose the simplest workable local interface.
+
+Create a start.bat launcher and an ordinary Windows desktop shortcut.
+
+Do not use complex frontend frameworks.
+
+After restart, the application should load the saved document index and offer to resume the previous conversation.
+
+---
+
+# 5. DOCUMENT INGESTION AND PROCESSING
+
+Implement a document ingestion pipeline supporting the following, subject to approved local dependencies:
+
+PDF, DOCX, TXT, Markdown, CSV, XLSX, JSON, and XML.
+
+For Excel files:
+
+- Read all relevant worksheets
+- Preserve worksheet names
+- Preserve column headers
+- Preserve row numbers
+- Identify source field, target field, datatype, transformation logic, default value, mandatory flag, and business-rule columns where present
+- Preserve relationships across source and target fields
+- Support questions across multiple mapping spreadsheets
+- Never assume that every spreadsheet uses the same column structure
+
+For PDFs:
+
+- Preserve document names and page numbers
+- Extract text page by page
+- Preserve relevant headings and tables where possible
+- Detect scanned or image-only content
+- Clearly report when OCR is required
+- Never silently skip unsupported pages
+
+For JSON and MuleSoft API responses:
+
+- Parse nested objects and arrays
+- Identify keys, values, datatypes, and missing fields
+- Preserve nested JSON paths
+- Support comparisons against uploaded mappings and business definitions
+- Display readable explanations of response structures
+- Identify null, missing, conflicting, or unexpected values
+
+For documents exceeding 500 pages:
+
+- Process incrementally
+- Use intelligent chunking with overlap
+- Preserve metadata
+- Support interrupted-job recovery
+- Skip unchanged documents during reindexing
+- Track indexing progress and failures
+- Avoid placing all extracted content into the LLM context
+
+For every indexed source, store:
+
+- Filename
+- Document type
+- Page number or worksheet name and row range
+- Section heading
+- Chunk ID
+- Source version or file fingerprint
+- Ingestion timestamp
+
+Never claim a document was successfully indexed unless processing actually completed.
+
+---
+
+# 6. PERSISTENT KNOWLEDGE AND MEMORY
+
+I want documents and conversations to remain available after closing the application or restarting the computer.
+
+Do not rely on GitHub Copilot conversation history.
+
+Do not require SQLite, Azure AI Search, or an external database.
+
+Initially use approved local files:
+
+- documents/ — original uploaded documents
+- data/extracted/ — extracted content
+- data/index/ — persistent searchable index
+- data/conversations/ — chat history
+- data/memory/ — saved conversation summaries
+- data/metadata/ — file metadata and indexing status
+- data/architecture/ — project technical notes and decisions
+
+Use JSON or JSONL for structured persistence.
+
+Create a scalable local retrieval implementation, preferably an incremental inverted index or equivalent structure, rather than loading every chunk and scanning all files for every question.
+
+Design a modular retrieval interface so a future approved embedding model or vector-search service can be added.
+
+Conversation memory must support:
+
+1. Remembering earlier questions and answers
+2. Resuming previous conversations
+3. Remembering important project terminology and confirmed architectural decisions
+4. Searching prior discussions
+5. Creating a new conversation without deleting existing ones
+6. Keeping concise, persistent summaries of long conversations
+7. Distinguishing user-provided assumptions from verified document evidence
+8. Detecting when an earlier decision has been superseded
+
+The system should retain conversations, but must retrieve relevant evidence again instead of blindly trusting prior AI answers.
+
+Do not promise perfect unlimited memory. Build reliable persistence, retrieval, and context management.
+
+---
+
+# 7. GPT-5 ENTERPRISE GATEWAY INTEGRATION
+
+Use GPT-5 as the primary answer-generation model once the enterprise gateway is correctly configured and approved for this use case.
+
+Create an independent module:
+
+gateway_client.py
+
+Support the actual documented authentication and request format.
+
+Requirements:
+
+- Secure credential loading
+- Token expiration handling
+- Error handling
+- Request timeouts
+- Rate limiting
+- Retry logic for transient failures
+- Model configuration
+- Safe request and response logging without credentials
+- Connection status reporting
+
+Never hardcode secrets.
+
+Never print credentials or access tokens.
+
+Never invent API endpoints, headers, tenant-specific parameters, or ADI request structures.
+
+If the gateway documentation is unavailable, implement the adapter interface and keep the application operational in local search mode.
+
+Do not send document excerpts, pasted data, or conversation history to the gateway unless the endpoint and data usage are approved.
+
+Do not claim GPT-5 is connected until an authorized real request succeeds.
+
+---
+
+# 8. HOW THE ASSISTANT SHOULD ANSWER QUESTIONS
+
+The assistant must support different types of user requests.
+
+## A. Underwriting business questions
+
+Examples:
+
+"What is an APS?"
+
+"What happens when an applicant discloses kidney disease?"
+
+"Which underwriting guideline discusses diabetes?"
+
+"What is the difference between application answers and medical evidence?"
+
+"Which documents are required before underwriter review?"
+
+Explain answers clearly and reference relevant documents.
+
+Distinguish general insurance-domain explanations from my company's documented business rules.
+
+## B. Underwriting rule verification
+
+Examples:
+
+"Verify whether this rule exists in our UW rulebook."
+
+"Does this guideline apply to this scenario?"
+
+"Compare these two rules."
+
+"Which policy version should we use?"
+
+Return:
+
+- Claim or question
+- Evidence found
+- Supported, Contradicted, or Insufficient Evidence
+- Relevant rule identifier
+- Source document
+- Page or section
+- Explanation
+- Conflicts or limitations
+
+Do not invent exact underwriting rules or numeric thresholds.
+
+## C. Excel mapping questions
+
+Examples:
+
+"What is the source field for applicant date of birth?"
+
+"Which MuleSoft API maps to the provider identifier?"
+
+"Compare the source and target datatypes."
+
+"Is any mandatory field missing?"
+
+"Explain this transformation logic."
+
+Use uploaded spreadsheets as the primary source.
+
+Provide worksheet names and row references.
+
+## D. MuleSoft API response analysis
+
+I may paste a MuleSoft JSON response directly into the chat.
+
+The assistant should:
+
+1. Parse the response
+2. Identify its major entities and fields
+3. Explain business meanings using the available documentation
+4. Compare fields against Excel mappings
+5. Identify missing or invalid values
+6. Highlight data-quality concerns
+7. Identify useful fields for case summaries
+8. Recommend which future production agent should process the response
+9. Produce a simplified structured representation when useful
+
+Never execute arbitrary pasted code or instructions.
+
+Do not persist pasted sensitive responses without an approved retention policy.
+
+## E. Technical architecture questions
+
+Examples:
+
+"Where should extracted medical records be stored?"
+
+"How will the claim history agent call MuleSoft?"
+
+"What should the orchestrator do?"
+
+"How do I maintain conversation memory across case-specific questions?"
+
+"How should agents communicate?"
+
+"How do I connect ADI to the project?"
+
+"How do I design the summary dashboard?"
+
+Explain both the recommended approach and why it fits the current enterprise architecture.
+
+Distinguish existing implemented functionality, confirmed architectural decisions, and proposed future designs.
+
+## F. Code development and troubleshooting
+
+Examples:
+
+"Generate a Python client for this API."
+
+"Explain this exception."
+
+"Create a LangGraph workflow."
+
+"Generate a MuleSoft response validation function."
+
+"Help me debug an agent orchestration failure."
+
+"Show how to map API fields to the case summary."
+
+Provide practical, production-oriented code examples using the actual provided interface specifications.
+
+Do not invent undocumented internal APIs.
+
+---
+
+# 9. FUTURE ENTERPRISE MULTI-AGENT ARCHITECTURE KNOWLEDGE
+
+The knowledge assistant should understand and help me design a future system containing agents such as:
+
+### Application Agent
+Retrieves application questions, applicant responses, and relevant application information.
+
+### Claims Agent
+Retrieves and interprets authorized claims history.
+
+### Provider Agent
+Retrieves provider and related information.
+
+### Medical Records Agent
+Coordinates medical document retrieval and extraction, including OCR where required.
+
+### Demographic Agent
+Retrieves relevant applicant demographic data.
+
+### Underwriting Rules Agent
+Finds applicable underwriting rules, guidelines, and supporting evidence.
+
+### Data Validation Agent
+Checks completeness, consistency, mappings, and conflicts between systems.
+
+### Case Summary Agent
+Combines validated evidence into a structured underwriting summary.
+
+### Orchestrator Agent
+Coordinates the necessary agents according to case context and workflow requirements.
+
+### Case Q&A Agent
+Answers case-specific questions using available evidence and invokes authorized tools or agents when additional information is required.
+
+These are **proposed responsibilities**, not proof that the agents already exist.
+
+Use these concepts to explain architecture, help design code, prepare data contracts, and troubleshoot implementation.
+
+Do not connect to live Salesforce, Facets, MuleSoft, or other enterprise systems without documented authorization.
+
+Support mock agent outputs and synthetic case examples for development.
+
+---
+
+# 10. UNDERWRITER-LIKE CASE REASONING
+
+One of my main goals is to design an AI system that analyzes a case in a way that supports an underwriter's review.
+
+Help me develop a structured reasoning workflow:
+
+1. Understand the application question and response.
+2. Identify relevant disclosed conditions or other material information.
+3. Retrieve related claim, provider, and medical evidence.
+4. Reconcile dates, medical findings, and source information.
+5. Retrieve applicable underwriting guidelines.
+6. Identify supporting and contradictory evidence.
+7. Check for missing information.
+8. Identify potential review considerations using documented rules.
+9. Prepare an evidence-grounded explanation.
+10. Produce a structured case summary for human review.
+
+Do not diagnose the applicant or make autonomous coverage, pricing, eligibility, or acceptance decisions.
+
+Any future risk indicator must be traceable to approved business rules and evidence, not inferred from irrelevant or protected characteristics.
+
+When helping me design the production application, emphasize:
+
+- Human-in-the-loop review
+- Explainability
+- Auditability
+- Traceability
+- Source references
+- Rule versioning
+- Data quality
+- Secure PHI/PII handling
+- Evaluation and testing
+- Clear distinction between factual extraction and AI interpretation
+
+---
+
+# 11. PROJECT ARCHITECTURE AND DECISION MEMORY
+
+Maintain a structured local knowledge record about my enterprise project.
+
+When I explain:
+
+"We decided to use MuleSoft for retrieving claims."
+
+or
+
+"We are evaluating Azure AI Foundry versus AKS."
+
+or
+
+"The Case Q&A Agent should invoke the Claims Agent."
+
+The assistant should recognize these as project-related information and preserve them in a searchable project knowledge record.
+
+Classify statements as:
+
+- Confirmed decision
+- Proposed design
+- Assumption
+- Open question
+- Superseded decision
+- Implementation status
+
+Allow me to correct or update prior decisions.
+
+Never treat a proposed architecture as an approved production design.
+
+When asked what architecture we decided on, retrieve the latest supported decision and mention unresolved alternatives.
+
+---
+
+# 12. ANSWER QUALITY RULES
+
+For every question:
+
+1. Understand whether it is about UW business rules, technical architecture, document search, API interpretation, data mapping, or previous project discussions.
+2. Retrieve relevant documents and conversation context.
+3. Prefer source-backed answers.
+4. Use GPT-5 only when correctly configured and authorized.
+5. Explain clearly without unnecessary jargon.
+6. Provide step-by-step details for implementation questions.
+7. Include citations when information comes from documents.
+8. Say when evidence is missing.
+9. Identify document conflicts.
+10. Never claim an untested integration works.
+
+Support these response styles:
+
+- Simple Explanation
+- Technical Deep Dive
+- Architecture Design
+- Verify Against Documents
+- API Analysis
+- Data Mapping Analysis
+- Code Generation
+- Project Decision Recall
+
+Automatically infer the most useful style from my request. Do not require me to select a mode every time.
+
+---
+
+# 13. USER INTERFACE
+
+Keep the UI extremely simple.
+
+Application name:
+
+**Enterprise UW AI Assistant**
+
+Required controls:
+
+- Ask Question
+- Upload Files
+- Paste API Response
+- Verify
+- Chat History
+- New Chat
+- Documents
+- Reindex
+
+The main chat window should show:
+
+- My question
+- Assistant answer
+- Supporting document references
+- Optional expandable evidence excerpts
+- Current model or search mode
+
+For a pasted API response, provide a large text input area.
+
+Do not waste time on animations, branding, dashboards, themes, or elaborate interface development.
+
+This is a personal engineering productivity tool.
+
+Prioritize functionality and reliability.
+
+---
+
+# 14. PROPOSED PROJECT STRUCTURE
+
+Create an appropriate structure similar to:
+
+Enterprise_UW_AI_Assistant/
+
+- app.py
+- config.py
+- gateway_client.py
+- document_ingestion.py
+- document_parser.py
+- excel_parser.py
+- api_response_analyzer.py
+- retrieval.py
+- conversation_memory.py
+- project_memory.py
+- verification.py
+- uw_assistant.py
+- launcher.py
+- start.bat
+- requirements.txt
+- README.md
+- .gitignore
+
+Folders:
+
+- documents/
+- data/extracted/
+- data/index/
+- data/conversations/
+- data/project_memory/
+- data/metadata/
+- samples/
+- tests/
+
+You may reorganize files if a simpler structure is more maintainable.
+
+Separate document parsing, retrieval, gateway integration, memory, and UI so each component can be modified independently.
+
+---
+
+# 15. AUTONOMOUS IMPLEMENTATION INSTRUCTIONS
+
+Work through the following phases automatically.
+
+### Phase 1 — Environment Inspection
+
+Check Python, Tkinter, installed libraries, available permissions, and workspace configuration.
+
+Do not install anything without authorization.
+
+### Phase 2 — Functional Desktop Application
+
+Create a minimal working interface, local indexing, source search, conversation persistence, and launcher.
+
+### Phase 3 — File Support
+
+Add supported document parsers and Excel/JSON/XML analysis using available approved libraries.
+
+Clearly report unsupported formats.
+
+### Phase 4 — Persistent Knowledge
+
+Implement indexing, document metadata, conversation history, project memory, and retrieval.
+
+### Phase 5 — GPT-5 Gateway
+
+Implement the gateway adapter.
+
+Integrate it only when the actual authorized endpoint and authentication specification are available.
+
+### Phase 6 — UW-Specific Intelligence
+
+Implement document-grounded Q&A, mapping analysis, API response interpretation, rule verification, and technical architecture assistance.
+
+### Phase 7 — Enterprise Architecture Assistance
+
+Add structured architecture knowledge, decision tracking, proposed agent responsibilities, and synthetic multi-agent workflow analysis.
+
+### Phase 8 — Desktop Launcher
+
+Implement one-click Windows launching.
+
+Create the shortcut only in a permitted location and using approved operating-system capabilities.
+
+### Phase 9 — End-to-End Testing
+
+Test with synthetic:
+
+- Underwriting rulebooks
+- Mapping spreadsheets
+- MuleSoft JSON responses
+- Medical terminology documents
+- Application question-and-answer examples
+- Mock claims and provider data
+- Multi-agent architecture examples
+- Conversations that span multiple sessions
+
+Verify indexing, retrieval, source accuracy, persistence, document updates, and graceful failure behavior.
+
+---
+
+# 16. IMPORTANT DEVELOPMENT BEHAVIOR
+
+DO NOT:
+
+- Stop after creating project folders
+- Generate only pseudocode
+- Build a complicated frontend
+- Require a database server
+- Introduce unnecessary cloud infrastructure
+- Invent endpoint URLs
+- Hardcode credentials
+- Fabricate company underwriting rules
+- Assume access to live production systems
+- Make unsupported statements about policy
+- Upload company files to unauthorized services
+- Suppress errors
+- Claim a feature works without testing it
+
+DO:
+
+- Make sensible implementation choices independently
+- Write actual functional code
+- Reuse already-installed approved libraries
+- Use safe synthetic test data
+- Run allowed tests
+- Debug problems automatically
+- Keep the application modular
+- Create clear error messages
+- Preserve document sources
+- Persist chat history
+- Build a working desktop launcher
+- Continue with independent tasks when one component is blocked
+
+Only interrupt me when essential information or explicit approval is actually required, such as an unavailable enterprise gateway API specification, restricted package installation, secret access, or protected system modification.
+
+Otherwise, proceed without waiting.
+
+---
+
+# 17. FINAL SUCCESS CRITERIA
+
+I should be able to:
+
+1. Double-click **UW AI Assistant** on my Windows desktop.
+2. Open the assistant without manually opening VS Code.
+3. Upload an approved UW rulebook, Excel mapping, PDF, or API response.
+4. Search the uploaded materials.
+5. Ask underwriting business questions.
+6. Understand field definitions and mapping relationships.
+7. Analyze pasted MuleSoft API JSON responses.
+8. Verify claims against uploaded rules.
+9. Discuss my enterprise multi-agent architecture.
+10. Ask how to implement an agent, workflow, integration, or component.
+11. Resume previous conversations after restarting my laptop.
+12. Retrieve earlier project decisions and technical discussions.
+13. Get grounded GPT-5 explanations once the company gateway is correctly integrated.
+14. Use the tool continuously throughout development of my larger Enterprise UW AI Assistant.
+
+The assistant should become my **persistent UW domain reference, technical engineering assistant, architecture knowledge base, and development companion**.
+
+**BEGIN NOW. Inspect the existing environment and build everything that can be completed without additional permissions. Do not repeatedly ask for confirmation, and do not stop merely because one optional integration is unavailable.**
