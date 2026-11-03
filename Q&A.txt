@@ -1,0 +1,599 @@
+Create a single-page enterprise architecture flow diagram titled:
+
+“UW AI Assistant – Case-Scoped Q&A Chatbot Flow”
+
+PURPOSE
+
+Show the complete production Q&A flow for an underwriting assistant running as a pro-code Microsoft Foundry Hosted Agent.
+
+The Q&A chatbot is displayed inside Salesforce next to an existing underwriting Summary Dashboard.
+
+The chatbot must answer questions using ONLY data belonging to the currently selected underwriting case/member.
+
+The chatbot must be able to use:
+- Existing underwriting summary/findings
+- Application questions and applicant responses
+- Claims history
+- Contact history
+- Provider/demographic/health-report APIs
+- Medical-record evidence in Azure AI Search
+- Underwriting consideration/rules
+- Previous conversation history
+
+It must also show when existing persisted evidence is reused versus when a live API is called again.
+
+STYLE
+
+Match a simple technical flow diagram similar to an engineering process diagram.
+
+Requirements:
+- White background
+- Black borders
+- Black text
+- No colors
+- No Azure icons
+- No decorative graphics
+- Rectangular boxes
+- Straight connectors/arrows
+- Small decision diamonds where required
+- Number each major stage
+- Use short technical text inside boxes
+- Keep the entire diagram readable on one page
+- Arrange main flow from top to bottom
+- Put source systems side-by-side where appropriate
+- Use dashed boxes for controls/security notes
+- Do not make the diagram overly complicated
+
+MAIN FLOW
+
+1. SALESFORCE – CASE CONTEXT / Q&A ENTRY
+
+Inputs:
+- Authenticated Underwriter
+- Selected Case ID
+- Member ID / Application ID resolved by backend
+- User question
+
+Process:
+1. Underwriter opens a specific case in Salesforce.
+2. Salesforce/backend verifies the underwriter is authorized for that case.
+3. Backend creates trusted case context:
+   - underwriter_id
+   - case_id
+   - member_id
+   - application_id
+4. User enters a question in the Q&A chatbot.
+
+Important control:
+The LLM must NEVER choose or change member_id or case_id.
+The trusted case/member context comes only from Salesforce/backend authorization.
+
+Output:
+Case-scoped Q&A request.
+
+Arrow to Stage 2.
+
+
+2. Q&A SESSION / CONVERSATION CONTEXT
+
+Show two separate concepts:
+
+A. Foundry Conversation
+Stores:
+- Previous user questions
+- Previous assistant answers
+- Tool-call history
+- Conversation ID
+
+Purpose:
+Maintains conversational continuity.
+
+B. Case Context
+Stores/references:
+- case_id
+- member_id
+- application_id
+- underwriter identity
+
+Show:
+Salesforce Case + Underwriter ↔ Conversation ID mapping.
+
+Mention:
+If user closes Salesforce and later reopens the same case, the application can either:
+- Resume the existing conversation ID, or
+- Start a new conversation while still using the same case evidence.
+
+Do NOT use conversation history as the authoritative member-data store.
+
+Arrow to Stage 3.
+
+
+3. ORCHESTRATOR / INTENT AGENT
+
+Input:
+- User question
+- Case/member context
+- Conversation context
+
+Process:
+1. Understand user intent.
+2. Determine which evidence sources are required.
+3. Build a source/tool plan.
+4. Use only tools allowed for the current case.
+
+Examples:
+- “Why was kidney disease flagged?”
+- “What did the applicant answer?”
+- “Show related claims in the last two years.”
+- “What does the medical record say?”
+- “Were there any recent contacts about this condition?”
+
+Output:
+Tool/source execution plan.
+
+Arrow to Stage 4.
+
+
+4. CASE EVIDENCE LOOKUP / CACHE DECISION
+
+Add a decision diamond:
+
+“Required structured evidence already available and fresh?”
+
+YES:
+→ Read Case Evidence Snapshot.
+
+NO / STALE:
+→ Call appropriate live API.
+→ Normalize response.
+→ Update Case Evidence Snapshot with source timestamp/version.
+
+Important:
+Do NOT hardcode one-day caching.
+
+Each source should have an approved freshness/TTL policy.
+
+Example:
+- Application Q&A: reuse if application version unchanged.
+- Claims: reuse until refresh policy says stale.
+- Contact history: refresh based on source-specific policy.
+- Health report: reuse based on report/version/date.
+- User can explicitly request latest data → live refresh.
+
+Arrow to Stage 5.
+
+
+5. CASE EVIDENCE SNAPSHOT – APPROVED PERSISTENT STORE
+
+Show this as a central structured-data store.
+
+Possible implementation:
+Salesforce / approved enterprise SQL/Cosmos/other approved database.
+
+Store normalized case-scoped evidence such as:
+- Case ID
+- Member ID
+- Application ID
+- Application questions/responses
+- Claims
+- Contact history
+- Health-report findings
+- Provider/demographic information if required
+- Source system
+- Source timestamp
+- Last refreshed time
+- Version
+- Existing consolidated findings
+- Existing underwriting summary
+
+Purpose:
+Avoid calling every upstream API for every chatbot question.
+Support retry, audit, reuse and Q&A.
+
+Important:
+This is NOT Azure AI Search.
+This is structured case evidence.
+
+Do not store unnecessary raw PHI if policy does not require it.
+
+Connect this box to Stage 6 and all structured API tools.
+
+
+6. TOOL / SOURCE ROUTING
+
+Create side-by-side boxes:
+
+6a. Application API Tool
+Input:
+application_id / case context
+
+Returns:
+- Application questions
+- Applicant responses
+
+6b. Claims API Tool
+Input:
+member_id / case context / lookback
+
+Returns:
+- Diagnosis
+- Service dates
+- Claim information
+
+6c. Contact History Tool
+Input:
+member/case identifiers
+
+Returns:
+- Contact history relevant to case
+
+6d. Health Report / Other Structured API Tool
+Returns:
+- Structured health/provider/demographic evidence
+
+6e. Underwriting Rules Tool
+Input:
+Application question / Question ID
+
+Returns:
+- Underwriter consideration
+- Lookback period
+- Evidence requirements
+- Rule metadata
+
+6f. Medical Evidence Search Tool
+Uses Azure AI Search.
+
+Connect tools back to the Orchestrator.
+
+
+7. MEDICAL EVIDENCE – AZURE AI SEARCH
+
+Show Azure AI Search separately from structured APIs.
+
+Stored searchable fields:
+- chunk_id
+- member_id
+- case_id
+- document_id
+- document_type
+- document_date
+- page_number
+- content
+- content_vector
+- source metadata
+
+Query flow:
+
+User question
+→ Create query embedding
+→ Azure AI Search vector/hybrid retrieval
+
+MANDATORY SERVER-SIDE FILTER:
+
+case_id = current case
+AND
+member_id = current member
+
+Show:
+
+Trusted Case Context
+        ↓
+Search filter applied BEFORE retrieval
+        ↓
+Vector / hybrid search
+        ↓
+Only current member/case evidence returned
+
+Add security note:
+
+“LLM cannot remove or override member/case filter.”
+
+Add validation:
+
+Returned result:
+case_id == requested case_id
+member_id == requested member_id
+
+If mismatch:
+REJECT result + audit security event.
+
+
+8. TOOL EXECUTION LOOP
+
+Show a loop:
+
+Orchestrator / GPT-5
+        ↓
+Select required tool
+        ↓
+Python tool executes
+        ↓
+Tool result returned
+        ↓
+Add result to current Q&A state
+        ↓
+GPT-5 evaluates evidence
+
+Decision diamond:
+
+“Enough evidence to answer?”
+
+NO
+→ Select another tool.
+→ Execute.
+→ Add result to state.
+→ Re-evaluate.
+
+YES
+→ Continue to Evidence Consolidation.
+
+Important:
+The LLM chooses from approved tools.
+The LLM does NOT directly execute APIs.
+Python/Foundry runtime executes the registered tool.
+
+
+9. TEMPORARY Q&A WORKING STATE
+
+Show a small runtime-state box.
+
+Contains only information needed for the current Q&A execution:
+
+- Current question
+- Trusted case context
+- Tool results
+- Relevant claims
+- Relevant structured findings
+- Relevant Search chunks
+- Current reasoning/workflow status
+
+Purpose:
+Allow the orchestration workflow to cross-reference results from multiple tools during the current request.
+
+Do NOT treat this as the permanent claims or medical-record database.
+
+Do NOT store large medical PDFs here.
+
+
+10. EVIDENCE CONSOLIDATION
+
+Input:
+- User question
+- Applicant response if relevant
+- Underwriting rule/consideration
+- Structured case evidence
+- Medical evidence
+- Conversation context
+
+Process:
+1. Combine relevant evidence.
+2. Apply lookback period.
+3. Compare evidence against applicant response.
+4. Identify contradiction/supporting evidence.
+5. Maintain source/date/page references.
+6. Do not make unsupported claims.
+
+Output:
+Grounded evidence package.
+
+
+11. GPT-5 ANSWER GENERATION
+
+Input:
+Grounded evidence package.
+
+Generate concise answer containing:
+- Direct answer
+- Reason
+- Relevant source
+- Dates
+- Medical-record page/document citation when applicable
+- Contradiction explanation when applicable
+
+Example:
+
+Question:
+“Why was kidney disease flagged?”
+
+Answer:
+“The applicant answered No, but a claim and medical-record evidence show kidney disease within the applicable two-year lookback period.”
+
+Show citations:
+- Claims source/date
+- Medical record document/page
+
+
+12. RESPONSE VALIDATION / GUARDRAILS
+
+Before returning the answer:
+
+Check:
+- All retrieved evidence belongs to current case/member.
+- Answer is supported by evidence.
+- No cross-member information.
+- No unsupported medical/underwriting facts.
+- Tool failures handled safely.
+- Sensitive fields displayed only if underwriter is authorized.
+
+If validation fails:
+→ Do not return unsupported result.
+→ Flag/retry/human review as appropriate.
+
+
+13. RESPONSE TO SALESFORCE
+
+Return structured response:
+
+{
+ answer,
+ sources,
+ citations,
+ evidence_used,
+ contradiction_flag,
+ data_as_of
+}
+
+Salesforce Q&A UI displays:
+- Answer
+- Supporting evidence
+- Source
+- Date
+- Document/page citation where applicable
+
+
+14. CONVERSATION PERSISTENCE
+
+After response:
+
+Foundry Conversation stores:
+- User question
+- Assistant response
+- Tool-call history / conversation context
+
+If audit/business requirements require additional retention:
+Persist an approved Q&A audit record containing:
+- case_id
+- underwriter_id
+- timestamp
+- question
+- final answer
+- source references
+- conversation ID
+
+Do NOT duplicate full medical records in conversation storage.
+
+
+15. USER CLOSES AND REOPENS CASE
+
+Show this as a separate flow.
+
+User closes Salesforce session
+        ↓
+Later opens same case
+        ↓
+Authenticate user
+        ↓
+Authorize access to case
+        ↓
+Resolve case_id/member_id
+        ↓
+Check existing Conversation ID
+
+If continuing same conversation:
+→ Resume Foundry Conversation.
+
+If starting new conversation:
+→ Create new conversation.
+
+In BOTH cases:
+Use same authorized Case Evidence Snapshot and same case-filtered Azure AI Search data.
+
+Then add decision:
+
+“Required case evidence still fresh?”
+
+YES:
+→ Reuse snapshot.
+
+NO:
+→ Refresh only required source API.
+→ Update snapshot.
+→ Continue answering.
+
+Important:
+Do NOT automatically call claims/contact/application APIs again simply because the browser/session was closed.
+Refresh based on source freshness/version policy.
+
+
+16. SECURITY / CASE ISOLATION – SHOW AS A DASHED CONTROL BOX ACROSS THE FLOW
+
+Include these controls:
+
+- Salesforce/Entra authenticated underwriter
+- Backend authorization verifies case access
+- Trusted case_id/member_id generated server-side
+- LLM cannot change case/member scope
+- Every structured API call receives trusted identifiers
+- Every Azure AI Search query uses mandatory case/member filter
+- Retrieved documents validated before entering LLM context
+- One underwriter can access multiple authorized cases, but each chatbot invocation is bound to exactly ONE active case
+- Switching Salesforce cases changes the trusted case context
+- No evidence from Case A can enter Case B context
+- Audit user, case, tools and sources used
+
+
+17. OBSERVABILITY / AUDIT – SMALL SIDE BOX
+
+Capture:
+- Conversation ID
+- Case ID
+- Agent execution
+- Tool calls
+- API failures
+- Search queries without raw sensitive content where prohibited
+- Latency
+- Token usage
+- Source refreshes
+- Authorization failures
+- Cross-case validation failures
+
+Use:
+Foundry Tracing / Application Insights / enterprise AI observability according to approved architecture.
+
+
+FINAL HIGH-LEVEL FLOW AT BOTTOM
+
+Show a simple consolidated flow:
+
+Salesforce Case + User Question
+        ↓
+Authentication + Case Authorization
+        ↓
+Foundry Conversation Context
+        ↓
+Orchestrator / Intent Agent
+        ↓
+Case Evidence Snapshot
+     + Live APIs if stale/missing
+     + Azure AI Search with case/member filter
+     + UW Rules
+        ↓
+Tool Execution Loop
+        ↓
+Evidence Consolidation
+        ↓
+GPT-5
+        ↓
+Grounding / Case-Scope Validation
+        ↓
+Answer + Citations
+        ↓
+Salesforce Q&A
+        ↓
+Conversation History / Audit
+
+
+IMPORTANT ARCHITECTURE LABELS
+
+Clearly label:
+
+“Conversation History ≠ Member Evidence Store”
+
+“Agent Memory ≠ Claims/Medical Database”
+
+“Azure AI Search = Unstructured Medical Evidence”
+
+“Case Evidence Snapshot = Structured Reusable Case Data”
+
+“Live APIs = Refresh Source When Missing/Stale”
+
+“case_id + member_id filtering enforced server-side”
+
+“Q&A always bound to one active Salesforce case”
+
+Do not add components that are not needed.
+Do not use colors.
+Do not use icons.
+Keep boxes simple and readable.
+Use arrows and numbered stages similar to the existing UW Summary Flow diagram.
