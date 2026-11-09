@@ -1,4 +1,3 @@
-Hi Sri Ramya,
 
 I reviewed the response from the UAIS support team. At a high level, they confirmed that **Service Principal + Entra ID/RBAC is the approved authentication approach for Azure AI Search**, so our current authentication direction is valid.
 
@@ -15,5 +14,3 @@ So the next steps would be:
 
 Once we get confirmation on the first two items, we should have a clear path to move the Azure AI Search integration forward.
 
-Thanks,  
-Sadanand
