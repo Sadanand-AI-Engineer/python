@@ -1,21 +1,19 @@
-We are evaluating **Azure PostgreSQL Flexible Server + pgvector** as an alternative vector store for the UW AI Assistant.
+Hi Sri Ramya,
 
-Planned flow:  
-**Medical Records → Document Intelligence → Extracted text → Chunking/Embedding → PostgreSQL pgvector → Agent/RAG**
+I reviewed the response from the UAIS support team. At a high level, they confirmed that **Service Principal + Entra ID/RBAC is the approved authentication approach for Azure AI Search**, so our current authentication direction is valid.
 
-| Area | What we need / confirm |
-|---|---|
-| **PostgreSQL Setup** | Azure PostgreSQL Flexible Server with **pgvector (`vector`) extension enabled** |
-| **Development Access** | Developers should be able to connect from the approved local/VS Code development environment for development and testing |
-| **Schema Control** | We need appropriate access to create/manage our application **schema, tables, vector indexes and required DB objects** without requiring full PostgreSQL server-admin access |
-| **Data Ingestion** | We need to insert/update extracted medical-record chunks, embeddings and metadata such as member/case/document/page/source information |
-| **Query Access** | Need ability to perform metadata-filtered vector similarity searches for RAG |
-| **Authentication** | Please confirm the approved authentication approach — **Entra/Managed Identity, Service Principal, or other approved method** |
-| **Permissions** | Please confirm which database roles/permissions are required for schema creation, ingestion, updates and querying |
-| **Connection Details** | Need PostgreSQL hostname, port, database/schema details and any required connection configuration |
-| **Networking** | Need approved private connectivity for development and, later, a supported private path for the application running in **AKS** to access PostgreSQL |
-| **Secrets** | Prefer passwordless authentication; if credentials are required, please confirm the approved secret-management approach |
-| **Environments** | Please confirm the expected DEV/QA/PROD setup and access separation |
+The main point we still need to clarify is the **write/ingestion path**. The support guidance mentions that Azure AI Search write operations are currently expected to happen through the approved UAIS AML/Databricks path, while read/query operations can be performed outside UAIS. Since our application will ultimately run in AKS, we need confirmation on whether AKS can directly create/manage the Search index and upload document chunks/embeddings using the approved identity and private connectivity, or whether ingestion must go through AML/Databricks and AKS will only query the index.
 
-**Main ask:**  
-Can PostgreSQL + pgvector be provisioned so our team can develop against it, create/manage the required application DB objects, ingest medical text + embeddings + metadata, perform vector retrieval, and later connect to the same service securely from AKS?
+They also mentioned that the required Search RBAC roles should be assigned through an approved **JIT group**, rather than directly to a user or Service Principal. My understanding is that the JIT group is the controlled access group used by the platform team to grant the required Azure permissions. The Search roles would be associated with that approved group at the Azure AI Search resource/IAM level through the internal access process.
+
+So the next steps would be:
+
+1. Confirm with UAIS whether **AKS is allowed to perform Search write/ingestion operations**, or if AML/Databricks is mandatory for writes.
+2. Identify the **approved JIT group/request process** for Azure AI Search.
+3. Request the required Search permissions through that process.
+4. Once access is provisioned, test index creation, document/vector upload, and query access before integrating it into the AKS application.
+
+Once we get confirmation on the first two items, we should have a clear path to move the Azure AI Search integration forward.
+
+Thanks,  
+Sadanand
