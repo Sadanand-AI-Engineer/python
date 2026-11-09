@@ -1,16 +1,22 @@
+I reviewed the UAIS support response. They confirmed that **Service Principal + Entra ID/RBAC** is the approved authentication approach for Azure AI Search.
 
-I reviewed the response from the UAIS support team. At a high level, they confirmed that **Service Principal + Entra ID/RBAC is the approved authentication approach for Azure AI Search**, so our current authentication direction is valid.
+The main item we still need to close is the **write/ingestion path**.
 
-The main point we still need to clarify is the **write/ingestion path**. The support guidance mentions that Azure AI Search write operations are currently expected to happen through the approved UAIS AML/Databricks path, while read/query operations can be performed outside UAIS. Since our application will ultimately run in AKS, we need confirmation on whether AKS can directly create/manage the Search index and upload document chunks/embeddings using the approved identity and private connectivity, or whether ingestion must go through AML/Databricks and AKS will only query the index.
+The support guidance says Search write operations may be restricted to the approved UAIS AML/Databricks path, while read/query operations can be performed outside UAIS. Since our application will ultimately run in AKS, we need the UAIS/Search team to confirm the supported pattern.
 
-They also mentioned that the required Search RBAC roles should be assigned through an approved **JIT group**, rather than directly to a user or Service Principal. My understanding is that the JIT group is the controlled access group used by the platform team to grant the required Azure permissions. The Search roles would be associated with that approved group at the Azure AI Search resource/IAM level through the internal access process.
+I suggest we reply on the existing ticket and ask them to confirm one of the below:
 
-So the next steps would be:
+1. **If AKS can write directly to Azure AI Search**
+   - Which Service Principal/Managed Identity should AKS use?
+   - Which JIT group should be requested?
+   - Which Search RBAC roles should be assigned?
+   - What private endpoint/VNet connectivity is required?
 
-1. Confirm with UAIS whether **AKS is allowed to perform Search write/ingestion operations**, or if AML/Databricks is mandatory for writes.
-2. Identify the **approved JIT group/request process** for Azure AI Search.
-3. Request the required Search permissions through that process.
-4. Once access is provisioned, test index creation, document/vector upload, and query access before integrating it into the AKS application.
+2. **If AKS cannot perform write operations**
+   - Please provide the approved AML/Databricks ingestion pattern for creating the index and uploading document chunks/embeddings.
+   - Confirm whether AKS will then only require read/query access to Azure AI Search.
 
-Once we get confirmation on the first two items, we should have a clear path to move the Azure AI Search integration forward.
+For the JIT access, we should also ask the support team to provide the **exact JIT group name or access-request path**. Once identified, the required Search roles can be associated with that approved group at the Azure AI Search resource level through the standard access process.
+
+So the immediate next step would be to update the current UAIS ticket with the above questions. Once they confirm the supported write path and JIT group, we can raise the required access/network requests and proceed with integration testing.
 
