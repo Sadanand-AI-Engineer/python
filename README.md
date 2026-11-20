@@ -1,8 +1,1 @@
-
-
-AKS → Azure AI Search	Yes	Query medical evidence for Summary/Q&A
-AKS → PostgreSQL	Yes	Case data, status, structured data, workflow state
-AML → Azure AI Search	Yes	Write/index processed medical data
-AML → PostgreSQL	Maybe	Only if AML needs to update processing status
-AKS → AML Workspace	Only if AKS triggers AML jobs	Submit/check ingestion job
-AKS → Databricks	No	Databricks is not being used
+Based on the current volume, we have approximately 5,924 total cases, with around 59 currently pending. We don't expect all cases to process simultaneously. For DEV, our preferred starting option is Standard_D4ds_v4 with 0 minimum and 2 maximum nodes. As a higher-load option, we can use Standard_D8ds_v4 with 0 minimum and 3–4 maximum nodes. We will finalize sizing after testing actual medical-document sizes and concurrent case processing.
